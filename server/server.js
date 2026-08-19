@@ -254,10 +254,12 @@ app.get('/api/admin/metrics', (req, res) => {
         db.all('SELECT attended_classes, total_classes FROM attendance', [], (err, attRows) => {
           let totalAtt = 0;
           let totalCls = 0;
-          attRows.forEach(a => {
-            totalAtt += a.attended_classes;
-            totalCls += a.total_classes;
-          });
+          if (attRows && Array.isArray(attRows)) {
+            attRows.forEach(a => {
+              totalAtt += a.attended_classes || 0;
+              totalCls += a.total_classes || 0;
+            });
+          }
           const avgAtt = totalCls > 0 ? Math.round((totalAtt / totalCls) * 100) : 0;
 
           db.get('SELECT COUNT(*) as open_placements FROM placements WHERE status = "Open"', [], (err, pRow) => {
@@ -280,6 +282,15 @@ app.get('/api/admin/metrics', (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`🚀 EduCloud Server running on port ${PORT}`);
 });
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.log(`⚠️ Port ${PORT} is already in use. Server is already running or port occupied.`);
+  } else {
+    console.error('Server error:', err);
+  }
+});
+

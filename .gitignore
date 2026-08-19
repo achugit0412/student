@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Database files
+*.db
+**/educloud.db
+
+# Build output
+dist/
+**/dist/
+
+# System / Environment
+.DS_Store
+*.log
+.env
